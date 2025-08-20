@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AXAverse</title>
-<!-- Fonts -->
 <link href=https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&display=swap rel="stylesheet">
 <style>
 :root{
@@ -187,8 +186,10 @@ position:relative; width:min(92vw, 1100px); aspect-ratio:16/9; background:#000; 
 box-shadow:var(--shadow);
 display:grid; place-items:center;
 }
-.player video{
-width:100%; height:100%; object-fit:contain; background:#000;
+.player iframe, .player video {
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 .close{
 position:absolute; top:.6rem; right:.6rem;
@@ -220,61 +221,51 @@ footer{ color:var(--muted); padding:2.4rem 2rem 3rem }
 <a href="#">My List</a>
 </nav>
 
-<!-- HERO (Row 1) -->
 <header class="hero" role="banner" aria-label="Featured title">
 <div class="hero-content">
 <span class="badge">FEATURED</span>
 <h1>OPERATIONS MIDYEAR TOWNHALL</h1>
 <p>Onward & Upward: Unstoppable growth and progress</p>
 <div class="cta">
-<!-- Wire hero "Play Now" to your MP4 -->
-<button class="btn btn-primary" data-open-player data-src="https://axa365.sharepoint.com/:v:/r/sites/AXAPHOperationCustomerExperience/AXAverse%20Video/Q3%202025%20Townhall%20Video.mp4?csf=1&web=1&e=appzQw">► Play Now</button>
+<button class="btn btn-primary yt-player" data-open-player data-src="https://www.youtube.com/watch?v=hlm0v3lLltk">► Play Now</button>
 <button class="btn btn-secondary">＋ My List</button>
 </div>
 </div>
 </header>
 
-<!-- Row 2: Trending Now -->
 <section class="section">
 <h2>Trending Now</h2>
 <div class="rail">
 <button class="arrow left" aria-label="Scroll left">‹</button>
 <div class="carousel" data-rail="trending">
-<!-- Cards injected by JS -->
 </div>
 <button class="arrow right" aria-label="Scroll right">›</button>
 </div>
 </section>
 
-<!-- Row 3: Top Picks for You -->
 <section class="section">
 <h2>Top Picks for You</h2>
 <div class="rail">
 <button class="arrow left" aria-label="Scroll left">‹</button>
 <div class="carousel" data-rail="picks">
-<!-- Cards injected by JS -->
 </div>
 <button class="arrow right" aria-label="Scroll right">›</button>
 </div>
 </section>
 
-<!-- Row 4: AXAverse Originals (vertical posters) -->
 <section class="section">
 <h2>AXAverse Originals</h2>
 <div class="rail">
 <button class="arrow left" aria-label="Scroll left">‹</button>
 <div class="carousel" data-rail="originals" data-vertical="true">
-<!-- Cards injected by JS -->
 </div>
 <button class="arrow right" aria-label="Scroll right">›</button>
 </div>
 </section>
 
-<!-- Modal Player -->
 <div class="modal" id="playerModal" aria-hidden="true" aria-label="Video player dialog">
 <div class="player" role="dialog" aria-modal="true">
 <button class="close" title="Close (Esc)" aria-label="Close player">×</button>
-<!-- Video element injected by JS -->
 </div>
 </div>
 
@@ -332,7 +323,7 @@ Sample Data (Fictional Titles)
 Add/override `video` to give each card its own file.
 ----------------------------- */
 
-const DEFAULT_VIDEO = 'https://axa365.sharepoint.com/:v:/r/sites/AXAPHOperationCustomerExperience/AXAverse%20Video/Q3%202025%20Townhall%20Video.mp4?csf=1&web=1&e=appzQw';
+const DEFAULT_VIDEO = 'https://www.youtube.com/watch?v=hlm0v3lLltk';
 
 const trending = [
 {title:'Ops Year End', tagline:'This is not farewell but going to another chapter', genres:['Action','Thriller'], image:'images/2.jpeg', video:'video/Ops Year-end FINAL.mp4'},
@@ -465,78 +456,70 @@ Modal Player (real video)
 const modal = document.getElementById('playerModal');
 const player = modal.querySelector('.player');
 
-function ensureVideoEl(){
-let v = player.querySelector('video');
-if(!v){
-v = document.createElement('video');
-v.setAttribute('controls', 'controls');
-v.setAttribute('playsinline', 'playsinline');
-v.setAttribute('preload', 'metadata');
-player.appendChild(v);
-}
-return v;
+function openPlayer(src) {
+    // Clear any previous content in the player
+    player.innerHTML = `<button class="close" title="Close (Esc)" aria-label="Close player">×</button>`;
+
+    let playerElement;
+
+    // Check if the source is a YouTube URL
+    if (src.includes('youtube.com') || src.includes('youtu.be')) {
+        const urlObj = new URL(src);
+        const youtubeId = urlObj.searchParams.get('v');
+        // Add the parameters to the embed URL to remove controls and branding
+        const embedSrc = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&modestbranding=1`;
+
+        playerElement = document.createElement('iframe');
+        playerElement.setAttribute('src', embedSrc);
+        playerElement.setAttribute('frameborder', '0');
+        playerElement.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+        playerElement.setAttribute('allowfullscreen', '');
+    } else {
+        // If it's a regular video file, use the video tag
+        playerElement = document.createElement('video');
+        playerElement.setAttribute('controls', 'controls');
+        playerElement.setAttribute('playsinline', 'playsinline');
+        playerElement.setAttribute('preload', 'metadata');
+        playerElement.setAttribute('src', src);
+    }
+    
+    player.appendChild(playerElement);
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+
+    // Focus close button for accessibility
+    modal.querySelector('.close').focus();
 }
 
-function openPlayer(src){
-const v = ensureVideoEl();
-// If the same src is already loaded, just play; else swap source.
-if (v.getAttribute('src') !== src){
-v.pause();
-v.setAttribute('src', src);
-v.load();
-}
-modal.classList.add('active');
-modal.setAttribute('aria-hidden','false');
-// Autoplay attempt (might be blocked if audio; user can press play)
-const playPromise = v.play();
-if(playPromise && typeof playPromise.catch === 'function'){
-playPromise.catch(()=>{/* ignore autoplay block */});
-}
-// Focus close button for accessibility
-modal.querySelector('.close').focus();
+function closePlayer() {
+    // Stop the playback by clearing the player content
+    player.innerHTML = `<button class="close" title="Close (Esc)" aria-label="Close player">×</button>`;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
 }
 
-function closePlayer(){
-const v = player.querySelector('video');
-if(v){ v.pause(); v.removeAttribute('src'); v.load(); }
-modal.classList.remove('active');
-modal.setAttribute('aria-hidden','true');
-}
-
-document.body.addEventListener('click', e=>{
-const playBtn = e.target.closest('[data-open-player]');
-if(playBtn){
-const src = playBtn.getAttribute('data-src') || DEFAULT_VIDEO;
-openPlayer(src);
-}
-if(e.target.closest('.close') || e.target === modal) closePlayer();
+document.body.addEventListener('click', e => {
+    const playBtn = e.target.closest('[data-open-player]');
+    if (playBtn) {
+        const src = playBtn.getAttribute('data-src');
+        openPlayer(src);
+    }
+    if (e.target.closest('.close') || e.target === modal) closePlayer();
 });
 
-window.addEventListener('keydown', e=>{ if(e.key==='Escape') closePlayer(); });
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePlayer();
+});
 
 /* -----------------------------
 Accessibility niceties
 ----------------------------- */
 // Keep focus inside modal when open
-document.addEventListener('focusin', (e)=>{
-if(!modal.classList.contains('active')) return;
-if(!modal.contains(e.target)) modal.querySelector('.close').focus();
+document.addEventListener('focusin', (e) => {
+    if (!modal.classList.contains('active')) return;
+    if (!modal.contains(e.target)) modal.querySelector('.close').focus();
 });
 </script>
 
-<!--
-IMAGE-GENERATION PROMPTS (ready to use in any AI image tool)
-- Hero:
-"Generate a high-resolution, cinematic movie still of a futuristic sci-fi city at night,
-featuring a single, cloaked hero looking out over the skyline. Dark, moody lighting with neon accents.
-Style: Blade Runner."
-- Trending (10x, 16:9):
-"Create 10 unique, wide-shot movie posters for fictional action, horror, and comedy films.
-Each poster should be 16:9 and have a bold title and a small tagline."
-- Originals (10x, vertical 2:3 or 4:5):
-"Generate 10 unique, vertical TV show posters for fictional drama, fantasy, and documentary series.
-Each poster should have a distinct visual style and a clear, artistic focus."
-Usage: Replace the SVG placeholder backgrounds by setting .thumb.style.backgroundImage to your generated asset URLs.
--->
 </body>
 </html>
