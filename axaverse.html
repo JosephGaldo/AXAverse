@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AXAverse</title>
+<!-- Fonts -->
+<link href=https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&display=swap rel="stylesheet">
+<style>
+:root{
+--bg:#0b0b0f;
+--bg-2:#121218;
+--card:#1b1b25;
+--muted:#b8b8c3;
+--text:#f4f5f7;
+--accent:#e50914;
+--accent-2:#6d6d6d;
+--radius:14px;
+--gap:1.2rem;
+--speed:180ms;
+--shadow:0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+margin:0;
+font-family:Inter, Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+color:var(--text);
+background:linear-gradient(180deg, #0a0a0d 0%, #0d0d13 100%);
+}
+
+/* Top Nav */
+.nav{
+position:sticky; top:0; z-index:1000;
+display:flex; align-items:center; gap:1rem;
+padding:1rem 2rem;
+background:linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,0));
+backdrop-filter:saturate(140%) blur(6px);
+}
+.logo{
+font-weight:800; letter-spacing:.5px; font-size:1.25rem;
+color:var(--text);
+}
+.logo b{ color:var(--accent) }
+.nav .spacer{flex:1}
+.nav a{
+color:var(--muted); text-decoration:none; font-weight:600; font-size:.95rem;
+padding:.4rem .7rem; border-radius:.5rem; transition:color var(--speed) ease, background var(--speed) ease;
+}
+.nav a:hover{ color:var(--text); background:rgba(255,255,255,.06) }
+
+/* Hero */
+.hero{
+position:relative; overflow:hidden;
+border-radius:0 0 20px 20px;
+margin:0 2rem 1.2rem;
+background:#070709;
+min-height:56vw;
+max-height:70vh;
+display:grid; align-items:end;
+box-shadow:var(--shadow);
+isolation:isolate;
+}
+.hero::before{
+content:"";
+position:absolute; inset:0; z-index:-2;
+background:
+radial-gradient(120% 120% at 90% 0%, rgba(229,9,20,.28) 0%, rgba(229,9,20,0) 50%),
+linear-gradient(0deg, rgba(0,0,0,.4), rgba(0,0,0,.0) 30%),
+url('images/4.jpeg');
+background-size:cover; background-position:center;
+filter:saturate(110%) contrast(108%);
+}
+.hero::after{
+content:"";
+position:absolute; inset:0; z-index:-1;
+background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.75) 80%, rgba(0,0,0,.92) 100%);
+}
+.hero-content{
+padding:3rem 2rem;
+max-width:900px;
+}
+.badge{display:inline-block; font-weight:700; letter-spacing:.05em; font-size:.8rem; padding:.25rem .5rem; border-radius:.4rem; background:rgba(255,255,255,.08); color:#fff; margin-bottom:.6rem}
+.hero h1{margin:.2rem 0 .6rem; font-size:clamp(1.8rem, 4.5vw, 3.6rem); line-height:1.05}
+.hero p{margin:0 0 1rem; color:var(--muted); max-width:70ch}
+.cta{display:flex; gap:.8rem; flex-wrap:wrap}
+.btn{
+border:0; border-radius:.6rem; padding:.8rem 1.2rem;
+font-weight:700; cursor:pointer; transition:transform var(--speed) ease, background var(--speed) ease, opacity var(--speed) ease;
+display:inline-flex; align-items:center; gap:.6rem;
+text-decoration:none; font-size:1rem;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent); color:#fff}
+.btn-primary:hover{opacity:.95}
+.btn-secondary{background:var(--accent-2); color:#fff}
+.btn-secondary:hover{background:#7a7a7a}
+
+/* Rows */
+.section{ padding:0 2rem 1.6rem; }
+.section h2{
+margin:1.2rem 0 .6rem;
+font-size:1.2rem; letter-spacing:.3px; font-weight:800;
+}
+.rail{ position:relative; }
+.carousel{
+display:grid; grid-auto-flow:column; grid-auto-columns:clamp(45%, 28vw, 18rem);
+gap:var(--gap);
+overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory;
+padding-bottom:.6rem; padding-right:3rem;
+scrollbar-width:none;
+}
+.carousel::-webkit-scrollbar{display:none}
+
+.arrow{
+position:absolute; top:50%; transform:translateY(-50%);
+width:44px; height:44px; border-radius:50%; border:0; cursor:pointer;
+background:rgba(255,255,255,.08); color:#fff; display:grid; place-items:center;
+backdrop-filter:blur(4px);
+transition:background var(--speed) ease, transform var(--speed) ease;
+z-index:10;
+}
+.arrow:hover{background:rgba(255,255,255,.15); transform:translateY(-50%) scale(1.05)}
+.arrow.left{left:.4rem}
+.arrow.right{right:.4rem}
+
+/* Cards */
+.card{
+position:relative; background:var(--card);
+border-radius:calc(var(--radius) - 2px);
+aspect-ratio:16/9; overflow:hidden;
+scroll-snap-align:start;
+transition:transform var(--speed) ease, box-shadow var(--speed) ease;
+box-shadow:0 3px 15px rgba(0,0,0,.35);
+}
+.card.vertical{ aspect-ratio:2/3 }
+
+.thumb{
+position:absolute; inset:0;
+background-size:cover; background-position:center;
+filter:saturate(110%);
+transition:transform var(--speed) ease, opacity var(--speed) ease;
+}
+.overlay{
+position:absolute; inset:auto 0 0 0; padding:.9rem;
+background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.86));
+display:flex; flex-direction:column; gap:.35rem;
+transition:opacity var(--speed) ease;
+}
+.title{font-weight:800; font-size:.95rem}
+.meta{font-size:.78rem; color:var(--muted)}
+.tags{display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.25rem}
+.tag{font-size:.7rem; padding:.15rem .4rem; border-radius:.4rem; background:rgba(255,255,255,.08)}
+.match{
+position:absolute; top:.5rem; left:.5rem;
+font-size:.78rem; font-weight:800; background:rgba(0,0,0,.6);
+padding:.25rem .45rem; border-radius:.4rem; color:#43d17a; box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+
+/* Hover/tap expand */
+.expand{
+position:absolute; inset:0;
+display:flex; flex-direction:column; justify-content:flex-end;
+opacity:0; pointer-events:none;
+background:linear-gradient(180deg, rgba(0,0,0,.0) 0%, rgba(0,0,0,.6) 40%, rgba(0,0,0,.85) 100%);
+padding:1rem; gap:.5rem;
+transition:opacity var(--speed) ease;
+}
+.card:hover, .card:focus-within{ transform:scale(1.04); z-index:2 }
+.card:hover .expand, .card:focus-within .expand{ opacity:1; pointer-events:auto }
+.play{
+align-self:flex-start;
+background:var(--accent); color:#fff; border:0; border-radius:.5rem;
+padding:.5rem .8rem; font-weight:800; cursor:pointer; transition:transform var(--speed) ease, opacity var(--speed) ease;
+}
+.play:active{ transform:scale(.98) }
+
+/* Modal Player */
+.modal{
+position:fixed; inset:0; z-index:2000; display:none;
+background:rgba(0,0,0,.82);
+align-items:center; justify-content:center;
+}
+.modal.active{ display:flex }
+.player{
+position:relative; width:min(92vw, 1100px); aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden;
+box-shadow:var(--shadow);
+display:grid; place-items:center;
+}
+.player video{
+width:100%; height:100%; object-fit:contain; background:#000;
+}
+.close{
+position:absolute; top:.6rem; right:.6rem;
+background:rgba(255,255,255,.12); color:#fff; border:0;
+width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
+cursor:pointer; font-size:1.2rem; font-weight:800;
+}
+.close:hover{ background:rgba(255,255,255,.2) }
+
+/* Footer */
+footer{ color:var(--muted); padding:2.4rem 2rem 3rem }
+
+/* Mobile tweaks */
+@media (max-width: 680px){
+.hero{ margin:0 .9rem 1rem; }
+.section{ padding:0 .9rem 1.2rem }
+.carousel{ grid-auto-columns:72%; gap:.8rem }
+.arrow{ display:none }
+}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Primary">
+<div class="logo"><b>AXA</b>verse</div>
+<div class="spacer"></div>
+<a href="#">Home</a>
+<a href="#">Series</a>
+<a href="#">Movies</a>
+<a href="#">My List</a>
+</nav>
+
+<!-- HERO (Row 1) -->
+<header class="hero" role="banner" aria-label="Featured title">
+<div class="hero-content">
+<span class="badge">FEATURED</span>
+<h1>OPERATIONS MIDYEAR TOWNHALL</h1>
+<p>Onward & Upward: Unstoppable growth and progress</p>
+<div class="cta">
+<!-- Wire hero "Play Now" to your MP4 -->
+<button class="btn btn-primary" data-open-player data-src="video/Q3 2025 Townhall Video.mp4">► Play Now</button>
+<button class="btn btn-secondary">＋ My List</button>
+</div>
+</div>
+</header>
+
+<!-- Row 2: Trending Now -->
+<section class="section">
+<h2>Trending Now</h2>
+<div class="rail">
+<button class="arrow left" aria-label="Scroll left">‹</button>
+<div class="carousel" data-rail="trending">
+<!-- Cards injected by JS -->
+</div>
+<button class="arrow right" aria-label="Scroll right">›</button>
+</div>
+</section>
+
+<!-- Row 3: Top Picks for You -->
+<section class="section">
+<h2>Top Picks for You</h2>
+<div class="rail">
+<button class="arrow left" aria-label="Scroll left">‹</button>
+<div class="carousel" data-rail="picks">
+<!-- Cards injected by JS -->
+</div>
+<button class="arrow right" aria-label="Scroll right">›</button>
+</div>
+</section>
+
+<!-- Row 4: AXAverse Originals (vertical posters) -->
+<section class="section">
+<h2>AXAverse Originals</h2>
+<div class="rail">
+<button class="arrow left" aria-label="Scroll left">‹</button>
+<div class="carousel" data-rail="originals" data-vertical="true">
+<!-- Cards injected by JS -->
+</div>
+<button class="arrow right" aria-label="Scroll right">›</button>
+</div>
+</section>
+
+<!-- Modal Player -->
+<div class="modal" id="playerModal" aria-hidden="true" aria-label="Video player dialog">
+<div class="player" role="dialog" aria-modal="true">
+<button class="close" title="Close (Esc)" aria-label="Close player">×</button>
+<!-- Video element injected by JS -->
+</div>
+</div>
+
+<footer>
+© AXAverse 2025. No copyrighted material used.
+</footer>
+
+<script>
+/* -----------------------------
+Utilities: Placeholder Posters
+----------------------------- */
+
+// Returns a data-URI SVG poster (16:9 or vertical) with a gradient + title + tagline
+function posterSVG({ title, tagline='', vertical=false, accent='#e50914' }){
+const w = vertical ? 600 : 1600;
+const h = vertical ? 900 : 900;
+const gradA = ['#0f1724','#121a2b','#151d32','#0e1320'][Math.floor(Math.random()*4)];
+const gradB = ['#1a2740','#0c1827','#1c2340','#15203b'][Math.floor(Math.random()*4)];
+const decoA = ['#7dd3fc','#60a5fa','#a78bfa','#f472b6'][Math.floor(Math.random()*4)];
+
+const safe = s => (s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const big = vertical ? 56 : 72;
+const small = vertical ? 26 : 30;
+
+const svg =
+`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns=http://www.w3.org/2000/svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop stop-color="${gradA}" offset="0"/>
+<stop stop-color="${gradB}" offset="1"/>
+</linearGradient>
+<filter id="noise">
+<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" stitchTiles="stitch" />
+<feColorMatrix type="saturate" values="0"/>
+<feComponentTransfer><feFuncA type="table" tableValues="0 0.04"/></feComponentTransfer>
+<feBlend mode="overlay"/>
+</filter>
+</defs>
+<rect width="${w}" height="${h}" fill="url(#g)"/>
+<g opacity="0.25"><rect x="0" y="${h-220}" width="${w}" height="220" fill="${accent}"/></g>
+<g opacity="0.13" filter="url(#noise)"><rect width="${w}" height="${h}" /></g>
+<g>
+<circle cx="${w*0.82}" cy="${h*0.18}" r="${vertical?40:24}" fill="${decoA}" opacity="0.7"/>
+<rect x="${w*0.78}" y="${h*0.72}" width="${vertical?46:64}" height="${vertical?46:64}" fill="${accent}" opacity="0.6" />
+</g>
+<text x="6%" y="${vertical?72:78}%" fill="#ffffff" font-family="Poppins, Inter, Arial, sans-serif" font-size="${big}" font-weight="800">${safe(title)}</text>
+<text x="6%" y="${vertical?82:86}%" fill="#e5e7eb" font-family="Inter, Arial, sans-serif" font-size="${small}" font-weight="600" opacity="0.9">${safe(tagline)}</text>
+</svg>`;
+return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+}
+
+/* -----------------------------
+Sample Data (Fictional Titles)
+Add/override `video` to give each card its own file.
+----------------------------- */
+
+const DEFAULT_VIDEO = 'video/Q3 2025 Townhall Video.mp4';
+
+const trending = [
+{title:'Ops Year End', tagline:'This is not farewell but going to another chapter', genres:['Action','Thriller'], image:'images/2.jpeg', video:'video/Ops Year-end FINAL.mp4'},
+{title:'Moonlit Motel', tagline:'Check in at your own risk', genres:['Horror','Mystery'], image:'images/1.jpeg', video:DEFAULT_VIDEO},
+{title:'Pixel Pals', tagline:'Two coders, one broken game', genres:['Comedy'], video:DEFAULT_VIDEO},
+{title:'Grave Frequency', tagline:'Voices from the static', genres:['Horror','Sci-Fi'], video:DEFAULT_VIDEO},
+{title:'Turbo City', tagline:'Street kings never brake', genres:['Action'], video:DEFAULT_VIDEO},
+{title:'Laugh Track', tagline:'Stand-up meets stand-off', genres:['Comedy'], video:DEFAULT_VIDEO},
+{title:'Night Market', tagline:'Secrets under neon rain', genres:['Crime','Drama'], video:DEFAULT_VIDEO},
+{title:'Skyhook', tagline:'Gravity is optional', genres:['Action','Sci-Fi'], video:DEFAULT_VIDEO},
+{title:'Cabin 13', tagline:'Don’t answer the knock', genres:['Horror'], video:DEFAULT_VIDEO},
+{title:'Office Hours', tagline:'Promotion or implosion?', genres:['Comedy'], video:DEFAULT_VIDEO},
+];
+
+const picks = [
+{title:'Signal Lost', tagline:'Find the beacon', genres:['Sci-Fi','Drama'], match:97, video:DEFAULT_VIDEO},
+{title:'Cold Iron', tagline:'Honor has a price', genres:['Action','Drama'], match:93, video:DEFAULT_VIDEO},
+{title:'Kindred Tides', tagline:'Family beneath the waves', genres:['Fantasy'], match:95, video:DEFAULT_VIDEO},
+{title:'Courier', tagline:'The last delivery', genres:['Thriller'], match:92, video:DEFAULT_VIDEO},
+{title:'Greenlight', tagline:'Lights, camera, sabotage', genres:['Comedy'], match:94, video:DEFAULT_VIDEO},
+{title:'Red Snow', tagline:'Footprints fade fast', genres:['Mystery','Drama'], match:96, video:DEFAULT_VIDEO},
+{title:'Static Garden', tagline:'Bloom in the interference', genres:['Sci-Fi'], match:98, video:DEFAULT_VIDEO},
+{title:'Lucky Seven', tagline:'Odds are never even', genres:['Heist','Action'], match:91, video:DEFAULT_VIDEO},
+{title:'Paper Empire', tagline:'Fold or rule', genres:['Drama'], match:95, video:DEFAULT_VIDEO},
+{title:'Solar Rail', tagline:'Run the line', genres:['Sci-Fi','Action'], match:97, video:DEFAULT_VIDEO},
+];
+
+const originals = [
+{title:'EMBERS', tagline:'Rebuild the light', genres:['Drama'], video:DEFAULT_VIDEO},
+{title:'WYRMWOOD', tagline:'Roots remember', genres:['Fantasy'], video:DEFAULT_VIDEO},
+{title:'HINTERLAND', tagline:'Edges of the map', genres:['Documentary'], video:DEFAULT_VIDEO},
+{title:'GLASS PRAYER', tagline:'Faith under fire', genres:['Drama'], video:DEFAULT_VIDEO},
+{title:'PALE RIVER', tagline:'Where truth sinks', genres:['Documentary'], video:DEFAULT_VIDEO},
+{title:'BRIAR CROWN', tagline:'Thorns of the throne', genres:['Fantasy'], video:DEFAULT_VIDEO},
+{title:'QUIET HOURS', tagline:'Listen between lines', genres:['Drama'], video:DEFAULT_VIDEO},
+{title:'ORBITAL ARCHIVE', tagline:'History in vacuum', genres:['Documentary'], video:DEFAULT_VIDEO},
+{title:'FABLE STATIC', tagline:'Myths through noise', genres:['Fantasy'], video:DEFAULT_VIDEO},
+{title:'DEEP NORTH', tagline:'Cold keeps secrets', genres:['Documentary'], video:DEFAULT_VIDEO},
+];
+
+/* -----------------------------
+Card Builder
+----------------------------- */
+
+function buildCard(item, {vertical=false, showMatch=false}={}){
+const card = document.createElement('article');
+card.className = 'card' + (vertical ? ' vertical' : '');
+card.tabIndex = 0;
+
+const thumb = document.createElement('div');
+thumb.className = 'thumb';
+if(item.image){
+thumb.style.backgroundImage = `url('${item.image}')`;
+}else{
+thumb.style.backgroundImage = posterSVG({
+title:item.title,
+tagline:item.tagline || '',
+vertical
+});
+}
+card.appendChild(thumb);
+
+const overlay = document.createElement('div');
+overlay.className = 'overlay';
+overlay.innerHTML = `
+<div class="title">${item.title}</div>
+<div class="meta">${(item.tagline || '—')}</div>
+<div class="tags">${(item.genres||[]).map(g=>`<span class="tag">${g}</span>`).join('')}</div>
+`;
+card.appendChild(overlay);
+
+const expand = document.createElement('div');
+expand.className = 'expand';
+expand.innerHTML = `
+<div class="title" style="font-size:1.05rem">${item.title}</div>
+<div class="meta">${item.tagline || 'A AXAverse original presentation.'}</div>
+<div class="tags">${(item.genres||[]).map(g=>`<span class="tag">${g}</span>`).join('')}</div>
+<button class="play" data-open-player data-src="${item.video || DEFAULT_VIDEO}">► Play</button>
+`;
+card.appendChild(expand);
+
+if (showMatch && typeof item.match === 'number'){
+const m = document.createElement('div');
+m.className = 'match';
+m.textContent = `${item.match}% Match`;
+card.appendChild(m);
+}
+
+return card;
+}
+
+function populateRow(selector, items, opts={}){
+const rail = document.querySelector(`.carousel[data-rail="${selector}"]`);
+items.forEach(it => rail.appendChild(buildCard(it, opts)));
+// Click-to-expand on touch: toggle focus
+rail.addEventListener('click', (e)=>{
+const card = e.target.closest('.card');
+if(card){ card.focus(); }
+});
+}
+
+populateRow('trending', trending, {vertical:false, showMatch:false});
+populateRow('picks', picks, {vertical:false, showMatch:true});
+populateRow('originals', originals, {vertical:true, showMatch:false});
+
+/* -----------------------------
+Carousel Arrows & Scroll
+----------------------------- */
+document.querySelectorAll('.rail').forEach(rail=>{
+const scroller = rail.querySelector('.carousel');
+const left = rail.querySelector('.arrow.left');
+const right = rail.querySelector('.arrow.right');
+const step = () => Math.max(scroller.clientWidth * 0.9, 300);
+
+left.addEventListener('click', ()=> scroller.scrollBy({left: -step(), behavior:'smooth'}));
+right.addEventListener('click', ()=> scroller.scrollBy({left: step(), behavior:'smooth'}));
+
+// Mouse wheel horizontal scroll
+scroller.addEventListener('wheel', (e)=>{
+if(Math.abs(e.deltaX) < Math.abs(e.deltaY)){
+scroller.scrollLeft += e.deltaY;
+e.preventDefault();
+}
+}, {passive:false});
+});
+
+/* -----------------------------
+Modal Player (real video)
+----------------------------- */
+const modal = document.getElementById('playerModal');
+const player = modal.querySelector('.player');
+
+function ensureVideoEl(){
+let v = player.querySelector('video');
+if(!v){
+v = document.createElement('video');
+v.setAttribute('controls', 'controls');
+v.setAttribute('playsinline', 'playsinline');
+v.setAttribute('preload', 'metadata');
+player.appendChild(v);
+}
+return v;
+}
+
+function openPlayer(src){
+const v = ensureVideoEl();
+// If the same src is already loaded, just play; else swap source.
+if (v.getAttribute('src') !== src){
+v.pause();
+v.setAttribute('src', src);
+v.load();
+}
+modal.classList.add('active');
+modal.setAttribute('aria-hidden','false');
+// Autoplay attempt (might be blocked if audio; user can press play)
+const playPromise = v.play();
+if(playPromise && typeof playPromise.catch === 'function'){
+playPromise.catch(()=>{/* ignore autoplay block */});
+}
+// Focus close button for accessibility
+modal.querySelector('.close').focus();
+}
+
+function closePlayer(){
+const v = player.querySelector('video');
+if(v){ v.pause(); v.removeAttribute('src'); v.load(); }
+modal.classList.remove('active');
+modal.setAttribute('aria-hidden','true');
+}
+
+document.body.addEventListener('click', e=>{
+const playBtn = e.target.closest('[data-open-player]');
+if(playBtn){
+const src = playBtn.getAttribute('data-src') || DEFAULT_VIDEO;
+openPlayer(src);
+}
+if(e.target.closest('.close') || e.target === modal) closePlayer();
+});
+
+window.addEventListener('keydown', e=>{ if(e.key==='Escape') closePlayer(); });
+
+/* -----------------------------
+Accessibility niceties
+----------------------------- */
+// Keep focus inside modal when open
+document.addEventListener('focusin', (e)=>{
+if(!modal.classList.contains('active')) return;
+if(!modal.contains(e.target)) modal.querySelector('.close').focus();
+});
+</script>
+
+<!--
+IMAGE-GENERATION PROMPTS (ready to use in any AI image tool)
+- Hero:
+"Generate a high-resolution, cinematic movie still of a futuristic sci-fi city at night,
+featuring a single, cloaked hero looking out over the skyline. Dark, moody lighting with neon accents.
+Style: Blade Runner."
+- Trending (10x, 16:9):
+"Create 10 unique, wide-shot movie posters for fictional action, horror, and comedy films.
+Each poster should be 16:9 and have a bold title and a small tagline."
+- Originals (10x, vertical 2:3 or 4:5):
+"Generate 10 unique, vertical TV show posters for fictional drama, fantasy, and documentary series.
+Each poster should have a distinct visual style and a clear, artistic focus."
+Usage: Replace the SVG placeholder backgrounds by setting .thumb.style.backgroundImage to your generated asset URLs.
+-->
+</body>
+</html>
